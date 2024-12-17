@@ -4,7 +4,7 @@ import { faUser } from "@fortawesome/free-regular-svg-icons";
 
 export function NavBar() {
     return (
-        <div className="w-full h-[6rem] flex items-center bg-white font-semibold px-6">
+        <div className="fixed top-0 border-b-2 w-full h-[6rem] flex items-center bg-white font-semibold px-6">
             
             <div className="flex items-center flex-1">
                 <img 

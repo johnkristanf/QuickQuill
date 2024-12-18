@@ -24,11 +24,20 @@ import GoogleLogo from '../assets/img/google.webp';
 import FacebookLogo from '../assets/img/facebook.png';
 
 import { Button } from "./ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { getUserData } from "@/api/get/user";
+import { UserData } from "@/types/user";
 
 
 export function NavBar() {
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-    const [isAuthenticated, setisAuthenticated] = useState<boolean>(false);
+
+    const { data, error, isLoading } = useQuery({ queryKey: ['todos'], queryFn: getUserData });
+
+    if(error) console.error('Error in getting user data: ', error.message)
+    if (isLoading) return <div>Loading...</div>;
+
+    const user: UserData = data && data.user;
 
     return (
         <div className="fixed top-0 border-b-2 w-full h-[6rem] flex items-center bg-white font-semibold px-6">
@@ -48,21 +57,7 @@ export function NavBar() {
             </h1>
 
             <div className="flex items-center justify-end flex-1 font-semibold">
-
-                {
-                    !isAuthenticated 
-                    ? ( <AuthDialog />)
-
-                    : (
-                        <div className="bg-gray-100 p-2 rounded-full hover:cursor-pointer">
-                            <FontAwesomeIcon 
-                                onClick={() => setIsMenuOpen(true)}
-                                icon={faUser} 
-                            />
-                        </div>
-                    )
-                }
-                
+                { !user ? ( <LoginDialog />): ( <AuthenticatedUser user={user}/> ) }
             </div>
             
             {
@@ -80,7 +75,12 @@ export function NavBar() {
 }
 
 
-function AuthDialog(){
+function LoginDialog(){
+
+    const handleGoogleLogin = async () => {
+        window.location.href = 'http://localhost:8000/auth/google';  
+    };
+
     return(
         <Dialog>
             <DialogTrigger asChild>
@@ -105,6 +105,7 @@ function AuthDialog(){
 
                 <div className="w-full flex flex-col justify-center items-center gap-5 mt-8">
                     <Button 
+                        onClick={handleGoogleLogin}
                         className="w-full rounded-full p-5 border-2 border-gray-400"
                     >
                         <img src={GoogleLogo} alt="Google Logo" width={30}/>
@@ -132,4 +133,37 @@ function AuthDialog(){
             </DialogContent>
         </Dialog>
     );
+}
+
+// PUT THE USER ON A PROPER STATE MANAGEMENT
+function AuthenticatedUser({ user }: {
+    user: UserData
+}){
+
+    console.log("pic: ", user.avatar);
+    
+    return (
+        <div className="flex items-center">
+
+            <h1>{ user.name }</h1>
+
+            <div className="bg-gray-100 p-2 rounded-full hover:cursor-pointer">
+                {
+                    user && user.avatar 
+                    ? ( 
+                        <img 
+                            src={user.avatar} 
+                            alt="User Avatar"
+                            className="w-10 rounded-full"
+                        /> 
+                    ) 
+
+                    : (
+                        <FontAwesomeIcon icon={faUser} />
+                    )
+                }
+            </div>
+        </div>
+        
+    )
 }

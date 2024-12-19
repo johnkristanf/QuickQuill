@@ -2,14 +2,27 @@
 
 namespace App\Services;
 
+use App\Models\History;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class ParaphraseService
 {
-    public function paraphraseText($original_text)
+    public function paraphraseText($originalText, $paraphraseMode)
     {
-        $response = Http::post('http://localhost:5000/paraphrase', [
-            'original_text' => $original_text,
+
+        $jwtToken = Session::get('jwt_token');
+
+        Log::info("token fetch in session: ". $jwtToken);
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $jwtToken
+
+        ])->post('http://localhost:5000/paraphrase', [
+            'original_text' => $originalText,
+            'paraphrase_mode' => $paraphraseMode
         ]);
 
         if ($response->successful()) {
@@ -17,6 +30,19 @@ class ParaphraseService
         }
 
         throw new \Exception('Error occurred while paraphrasing');
+    }
+
+
+    public function saveHistory($type, $originalText, $transformedText)
+    {
+        $history = History::create([
+            'type' => $type,
+            'original_text' => $originalText,
+            'transformed_text' => $transformedText,
+            'user_id' => Auth::id(),
+        ]);
+
+        return $history;
     }
 
 

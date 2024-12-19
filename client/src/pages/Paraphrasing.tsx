@@ -4,6 +4,9 @@ import { faClipboard, faClock } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 
+import { SubmitHandler, useForm } from "react-hook-form";
+import { PulseLoader } from "react-spinners";
+
 import {
     Sheet,
     SheetContent,
@@ -13,11 +16,36 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 import { SideBar } from "@/components/SideBar";
+import { Paraphrase } from "@/types/paraphrase";
+import { useMutation } from "@tanstack/react-query";
+import { paraphraseText } from "@/api/post/paraphrase";
   
 
 function ParaphrasingPage(){
 
     const [activeMode, setActiveMode] = useState<string>("Standard");
+    const [paraphrasedText, setParaphrasedText] = useState<string>("");
+    
+    const { register, handleSubmit } = useForm<Paraphrase>();
+
+    const handleModeChange = (mode: string) => setActiveMode(mode);
+
+    const mutation = useMutation({
+        mutationFn: paraphraseText,
+        onSuccess: (data) => {
+            console.log("reponse from paraphrase: ", data);
+            if(data)setParaphrasedText(data.paraphrased_text)
+
+            //   queryClient.invalidateQueries({ queryKey: ['todos'] })
+        },
+    })
+
+    const onSubmit: SubmitHandler<Paraphrase> = (data) => {
+        data.paraphrase_mode = activeMode; 
+        mutation.mutate(data)
+        console.log(data);
+    }
+
 
     const languages = [
         "English",
@@ -63,7 +91,7 @@ function ParaphrasingPage(){
                                             activeMode == mode ? "text-blue-800 border-b-2 border-blue-800" : "text-slate-700"
                                         )}
 
-                                        onClick={() => setActiveMode(mode)}
+                                        onClick={() => handleModeChange(mode)}
                                     >
                                         { mode } 
                                     </h1>
@@ -101,50 +129,56 @@ function ParaphrasingPage(){
                     </div>
 
 
-                    
-
                     <div className="w-full h-full flex ">
 
-                        <form className="relative flex flex-col gap-4 w-1/2 h-full p-5">
-                            <div className="h-full relative">
+                        <form onSubmit={handleSubmit(onSubmit)} className="w-1/2 relative">
+
+                            <div className="w-full h-full relative">
 
                                 {/* PARAPHRASE TEXT AREA TYPING */}
-
+                                
                                 <textarea
-                                    rows={5}
-                                    cols={40}
+                                    rows={10}
+                                    cols={65}
                                     placeholder='To get started, enter or paste text and press "Paraphrase" '
-                                    className="w-full h-full focus:outline-none resize-none p-4 rounded-md placeholder:text-lg"
+                                    className="w-full h-full focus:outline-none resize-none p-4 text-lg rounded-md placeholder:text-lg"
+                                    {...register("original_text", { required: true })}
                                 />
 
-                                {/* FLOATING BUTTONS */}
+                                {
+                                    !paraphrasedText && (
+                                        <div className="w-full flex gap-4 justify-center absolute bottom-[17rem] left-1/2 transform -translate-x-1/2 ">
+                                            <button
+                                                type="button"
+                                                className="w-[40%] flex items-center justify-center gap-2 px-4 py-2 border-2 border-blue-800 text-blue-800 rounded-full hover:bg-gray-200"
+                                            >
+                                                <span role="img" aria-label="wave">👋</span>
+                                                <span>Try Sample Text</span>
+                                            </button>
 
-                                <div className="w-full flex gap-4 justify-center absolute bottom-[13rem] left-1/2 transform -translate-x-1/2 ">
-                                    <button
-                                        type="button"
-                                        className="w-[40%] flex items-center justify-center gap-2 px-4 py-2 border-2 border-blue-800 text-blue-800 rounded-full hover:bg-gray-200"
-                                    >
-                                        <span role="img" aria-label="wave">👋</span>
-                                        <span>Try Sample Text</span>
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        className="w-[40%] flex items-center justify-center  gap-2 px-4 py-2 border-2 border-blue-800 text-blue-800 rounded-full hover:bg-gray-200"
-                                    >
-                                        <FontAwesomeIcon icon={faClipboard} className="text-blue-800" /> 
-                                        <span>Paste Text</span>
-                                    </button>
-                                </div>
-
+                                            <button
+                                                type="button"
+                                                className="w-[40%] flex items-center justify-center gap-2 px-4 py-2 border-2 border-blue-800 text-blue-800 rounded-full hover:bg-gray-200"
+                                            >
+                                                <FontAwesomeIcon icon={faClipboard} className="text-blue-800" /> 
+                                                <span>Paste Text</span>
+                                            </button>
+                                        </div>
+                                    )
+                                }
                             </div>
 
-                            <div className="sticky bottom-0 w-[30%] p-3 self-end">
+                            <div className="absolute bottom-8 right-4 w-[20%]">
                                 <button 
                                     type="submit"
-                                    className="w-full bg-blue-800 p-2 rounded-full text-white font-bold hover:opacity-75 self-end"
+                                    className="w-full bg-blue-800 p-2 rounded-full text-white font-bold hover:opacity-75"
                                 >
-                                    Paraphrase
+                                    {mutation.isPending ? (
+                                        <PulseLoader size={10} color={"#fff"} /> 
+                                    ) : (
+                                        "Paraphrase"
+                                    )}
+
                                 </button>
                             </div>
 
@@ -153,12 +187,14 @@ function ParaphrasingPage(){
                         
                         {/* TEXT AREA FOR PARAPHRASE RESULT */}
                         <textarea 
+                            value={paraphrasedText && paraphrasedText}
                             rows={5} 
                             cols={40} 
-                            className="w-1/2 border-l-2 focus:outline-none resize-none"
+                            className="w-1/2 p-4 text-lg border-l-2 focus:outline-none resize-none"
                             readOnly
                         >
                         </textarea>
+                        
                     </div>
                     
                 </div>

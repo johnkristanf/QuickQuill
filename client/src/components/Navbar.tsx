@@ -32,10 +32,8 @@ import { UserData } from "@/types/user";
 export function NavBar() {
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 
-    const { data, error, isLoading } = useQuery({ queryKey: ['todos'], queryFn: getUserData });
-
+    const { data, error, isLoading } = useQuery({ queryKey: ['user_data'], queryFn: getUserData });
     if(error) console.error('Error in getting user data: ', error.message)
-    if (isLoading) return <div>Loading...</div>;
 
     const user: UserData = data && data.user;
 
@@ -57,7 +55,13 @@ export function NavBar() {
             </h1>
 
             <div className="flex items-center justify-end flex-1 font-semibold">
-                { !user ? ( <LoginDialog />): ( <AuthenticatedUser user={user}/> ) }
+                {
+                    !user 
+                        ? isLoading 
+                            ? <div>Loading...</div> 
+                            : <LoginDialog />
+                        : <AuthenticatedUser user={user} />
+                }
             </div>
             
             {
@@ -157,7 +161,6 @@ function AuthenticatedUser({ user }: {
                             className="w-10 rounded-full"
                         /> 
                     ) 
-
                     : (
                         <FontAwesomeIcon icon={faUser} />
                     )

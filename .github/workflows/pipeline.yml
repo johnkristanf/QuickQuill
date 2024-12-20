@@ -34,7 +34,7 @@ jobs:
       with:
         php-version: '8.2'
         extensions: pgsql
-
+        
 
     - name: Cache Composer Dependencies
       uses: actions/cache@v3
@@ -45,11 +45,16 @@ jobs:
           ${{ runner.os }}-composer-
 
 
+    - name: Install Composer Dependencies
+      run: |
+        cd server
+        composer install --prefer-dist --no-interaction --no-progress
+
+
     - name: Setup Laravel Environment Variables
       env:
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-
       run: |
         cd server
         cp .env.example .env
@@ -60,6 +65,5 @@ jobs:
 
     - name: Run the Laravel Test
       run: |
+        cd server
         php artisan test --verbose
-
-  

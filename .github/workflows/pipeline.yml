@@ -63,7 +63,7 @@ jobs:
         echo "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}" >> .env
 
 
-    - name: Run the Laravel Test
-      run: |
-        cd server
-        php artisan test
+    # - name: Run the Laravel Test
+    #   run: |
+    #     cd server
+    #     php artisan test

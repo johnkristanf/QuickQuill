@@ -15,7 +15,7 @@ export function ModeSelection({ activeMode, setActiveMode}: {
     const modes = [
         "Standard",
         "Creative",
-        "Academic",
+        "Fluency",
     ]
 
     const handleModeChange = (mode: string) => setActiveMode(mode);

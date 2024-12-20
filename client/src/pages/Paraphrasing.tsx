@@ -21,8 +21,10 @@ function ParaphrasingPage(){
 
     const [paraphrasedText, setParaphrasedText] = useState<string>("");
     
-    const { register, handleSubmit } = useForm<Paraphrase>();
+    const { register, handleSubmit, watch } = useForm<Paraphrase>();
 
+
+    const originalText = watch("original_text");
 
     const mutation = useMutation({
         mutationFn: paraphraseText,
@@ -71,7 +73,7 @@ function ParaphrasingPage(){
                                     {...register("original_text", { required: true })}
                                 />
 
-                                { !paraphrasedText && ( <FloatingParaphraseHelperButton /> ) }
+                                { !originalText && ( <FloatingParaphraseHelperButton /> ) }
 
                             </div>
 

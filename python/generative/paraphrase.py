@@ -1,88 +1,127 @@
-import torch
-import nltk
+import os 
+import requests
 
-from transformers import PegasusTokenizer, PegasusForConditionalGeneration
-from torch.amp import autocast
-from accelerate import Accelerator
+from transformers import PegasusTokenizer
 
-accelerator = Accelerator()
-torch_device = 'cuda' if torch.cuda.is_available() else 'cpu'
-torch.cuda.empty_cache()
-
-print("Loading model...")
-
-model = PegasusForConditionalGeneration.from_pretrained('tuner007/pegasus_paraphrase').to(torch_device)
+MAX_TOKENS = 60
+API_URL = "https://api-inference.huggingface.co/models/tuner007/pegasus_paraphrase"
 tokenizer = PegasusTokenizer.from_pretrained('tuner007/pegasus_paraphrase')
-model, tokenizer = accelerator.prepare(model, tokenizer)
-
-print("Model loaded successfully.")
-
-
-nltk.download('punkt_tab')
 
 
 class GenerativeParaphrase:
 
-    def paraphrase_text(self, text: str, paraphrase_mode: str):
+    def split_text_into_chunks(self, text: str):
+        sentences = text.split('.')
+        chunks = []
+        current_chunk = ""
 
-        sentences = nltk.sent_tokenize(text)
-        print(f"Sentences: {sentences}")
+        for sentence in sentences:
+            sentence_tokens = len(tokenizer.encode(sentence, truncation=False))
+            current_chunk_tokens = len(tokenizer.encode(current_chunk, truncation=False))
+
+            if current_chunk_tokens + sentence_tokens > MAX_TOKENS:
+                chunks.append(current_chunk.strip())
+                current_chunk = sentence
+            else:
+                current_chunk += sentence + '.'
+
+        if current_chunk:
+            chunks.append(current_chunk.strip())
+
+        return chunks
 
 
-        batch_size = 8
+    def paraphrase_long_text(self, text: str, params, HEADERS):
+        print("long ang ni gana")
+        chunks = self.split_text_into_chunks(text)
         paraphrased_text = []
 
+        for chunk in chunks:
+            payload = {
+                "inputs": chunk,
+                "parameters": params
+            } 
 
-        for i in range(0, len(sentences), batch_size):
-            sentences_batch = sentences[i:i + batch_size]
+            response = requests.post(url=API_URL, headers=HEADERS, json=payload)
+            if response.status_code == 200:
+                paraphrased_text.append(response.json()[0]["generated_text"])
+            else:
+                raise Exception(f"Error: {response.status_code}, {response.text}")
 
-            result = tokenizer.batch_encode_plus(sentences_batch, return_tensors='pt', padding=True, truncation=True)
-            print('result: ', result)
+        return " ".join(paraphrased_text)
 
-            summary_ids_standard = None
-                
-            with autocast(torch_device):
-                if paraphrase_mode.lower() == 'standard':
 
-                    initial_memory = torch.cuda.memory_allocated()
-                    print(f"Initial memory usage: {initial_memory / (1024 ** 3)} GB")
+    def paraphrase_short_text(self, text: str, params, HEADERS):
+        print("short ang ni gana")
 
-                    summary_ids_standard = model.generate(
-                        input_ids=result['input_ids'], 
-                        max_length=256, 
-                        num_beams=2, 
-                        no_repeat_ngram_size=2 
-                    )
+        payload = {
+            "inputs": text, 
+            "parameters": params
+        }
 
-                    final_memory = torch.cuda.memory_allocated()
-                    print(f"Final memory usage: {final_memory / (1024 ** 3)} GB")
-                    print(f"Memory usage for this batch: {(final_memory - initial_memory) / (1024 ** 3)} GB")
-                                        
-                elif paraphrase_mode.lower() == 'creative':
-                    summary_ids_standard = model.generate(
-                        input_ids=result['input_ids'], 
-                        max_length=256, 
-                        temperature=1.0, 
-                        do_sample=True,
-                        top_k=50, 
-                        num_beams=3, 
-                        no_repeat_ngram_size=2
-                    )
+        response = requests.post(API_URL, headers=HEADERS, json=payload)
 
-                else:
-                    summary_ids_standard = model.generate(
-                        input_ids=result['input_ids'], 
-                        max_length=256, 
-                        do_sample=True,
-                        top_p=0.9, 
-                        num_beams=3, 
-                        no_repeat_ngram_size=2
-                    )
+        if response.status_code == 200:
+            paraphrased_text = response.json()[0]["generated_text"]
+            print(f'paraphrased_text: {paraphrased_text}')
 
-            paraphrased_batch  = [tokenizer.decode(id, skip_special_tokens=True) for id in summary_ids_standard]
-            paraphrased_text.extend(paraphrased_batch)
+            return paraphrased_text
+        else:
+            raise Exception(f"Error: {response.status_code}, {response.text}")
+        
 
-            concatenated_paraphrased_text = ' '.join(paraphrased_text)
-            print(f'paraphrased_text: {concatenated_paraphrased_text}')
+    def paraphrase(self, text: str, paraphrase_mode: str = "standard"):
+        params = self.parameter_checker(paraphrase_mode)
+        HEADERS = {"Authorization": f"Bearer {os.getenv('HF_API_KEY')}"}
 
-        return concatenated_paraphrased_text
+        token_ids = len(tokenizer.encode(text, truncation=False))
+
+        if token_ids > MAX_TOKENS:
+            paraphrased_text = self.paraphrase_long_text(text, params, HEADERS)
+        else:
+            paraphrased_text = self.paraphrase_short_text(text, params, HEADERS)
+
+        return paraphrased_text
+    
+
+    def parameter_checker(self, paraphrase_mode: str = "standard"):
+
+        params = None
+        if paraphrase_mode.lower() == "standard":
+            params = {
+                "max_length": 60, 
+                "num_beams": 2, 
+                "no_repeat_ngram_size": 2
+            }
+
+        elif paraphrase_mode.lower() == "creative":
+            params = {
+                "max_length": 60, 
+                "temperature": 1.0, 
+                "do_sample": True, 
+                "top_k": 50, 
+                "num_beams": 3, 
+                "no_repeat_ngram_size": 2
+            }
+
+        elif paraphrase_mode.lower() == 'fluency':
+            params = {
+                "max_length": 60, 
+                "num_beams": 5,  
+                "no_repeat_ngram_size": 3,  
+                "length_penalty": 1.0, 
+                "temperature": 0.7, 
+                "top_p": 0.9,  
+                "max_length": 256,  
+            }
+
+        else:    
+            params = {
+                "max_length": 60, 
+                "do_sample": True, 
+                "top_p": 0.9, 
+                "num_beams": 3, 
+                "no_repeat_ngram_size": 2
+            }
+
+        return params

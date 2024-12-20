@@ -34,7 +34,7 @@ jobs:
       with:
         php-version: '8.2'
         extensions: pgsql
-        
+
 
     - name: Cache Composer Dependencies
       uses: actions/cache@v3
@@ -60,7 +60,6 @@ jobs:
 
     - name: Run the Laravel Test
       run: |
-        cd server
         php artisan test --verbose
 
   

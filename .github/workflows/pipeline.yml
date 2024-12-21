@@ -64,5 +64,4 @@ jobs:
 
     - name: Run the Laravel Test
       run: |
-        cd server
         php artisan test

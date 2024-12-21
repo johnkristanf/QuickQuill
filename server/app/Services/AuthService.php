@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Laravel\Sanctum\PersonalAccessToken;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService
@@ -27,20 +29,20 @@ class AuthService
         }   
 
         Auth::login($user);
-
         $jwtToken = JWTAuth::claims(['exp' => now()->addMinutes(1440)->timestamp])->fromUser($user);
 
-        Log::info("token in login: ", [
-            'jwt_token' => $jwtToken
-        ]);
-
-        Session::put('jwt_token',  $jwtToken);
-
-        return $user->createToken('access_token')->plainTextToken;
+        return $jwtToken;
     }
 
     public function getUserData()
     {
         return User::select('id', 'name', 'email', 'avatar')->where('id',  Auth::id())->first();
+    }
+
+
+    public function signout()
+    {
+        Auth::logout();
+        Session::flush();
     }
 }

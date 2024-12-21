@@ -32,7 +32,6 @@ class GenerativeParaphrase:
 
 
     def paraphrase_long_text(self, text: str, params, HEADERS):
-        print("long ang ni gana")
         chunks = self.split_text_into_chunks(text)
         paraphrased_text = []
 
@@ -52,7 +51,6 @@ class GenerativeParaphrase:
 
 
     def paraphrase_short_text(self, text: str, params, HEADERS):
-        print("short ang ni gana")
 
         payload = {
             "inputs": text, 

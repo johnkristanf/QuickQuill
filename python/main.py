@@ -50,7 +50,7 @@ app.add_middleware(JWTMiddleware)
 
 @app.post("/paraphrase")
 async def paraphrase(data: Paraphrase):
-    paraphrased_text = gen.paraphrase(data.original_text, data.paraphrase_mode)
+    paraphrased_text = gen.paraphrase(data.original_text.strip(), data.paraphrase_mode)
     return { "paraphrased_text": paraphrased_text }
 
 

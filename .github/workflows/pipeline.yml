@@ -50,7 +50,6 @@ jobs:
         cd server
         composer install --prefer-dist --no-interaction --no-progress
 
-
     - name: Setup Laravel Environment Variables
       env:
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
@@ -63,7 +62,7 @@ jobs:
         echo "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}" >> .env
 
 
-    # - name: Run the Laravel Test
-    #   run: |
-    #     cd server
-    #     php artisan test
+    - name: Run the Laravel Test
+      run: |
+        cd server
+        php artisan test

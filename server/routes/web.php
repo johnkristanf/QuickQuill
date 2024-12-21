@@ -9,4 +9,8 @@ Route::middleware('guest')->group(function (){
     Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 });
 
+Route::middleware('auth')->group(function () {
+    Route::post('/signout/user', [AuthController::class, 'signoutUser']);
+});
+
 

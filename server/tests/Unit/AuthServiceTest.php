@@ -2,11 +2,14 @@
 
 use App\Models\User;
 use App\Services\AuthService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthServiceTest extends TestCase
 {
+    use RefreshDatabase; // This will refresh and migrate the database before each test.
+
     protected $authService;
 
     protected function setup(): void
@@ -23,10 +26,7 @@ class AuthServiceTest extends TestCase
         $socialUser->shouldReceive('getName')->andReturn('John Kristan Torremocha');
         $socialUser->shouldReceive('getAvatar')->andReturn('avatar_url');
 
-
-        // THIS ERROR OCCURS CAUSE THE INTELEPHENSE RELIES ON STATIC ANALYSIS
-        // AND CAN'T RECOGNIZE DYNAMIC RETURN METHOD LIKE ->fromUser($user)
-
+        // Mocking the JWTAuth methods
         JWTAuth::shouldReceive('claims')
             ->andReturnSelf()
             ->shouldReceive('fromUser')
@@ -37,13 +37,12 @@ class AuthServiceTest extends TestCase
         $this->assertNotEmpty($result); 
         $this->assertIsString($result);
 
+        // Assert that the user is saved in the database
         $this->assertDatabaseHas('users', [
             'google_id' => '12345',
             'email' => 'johnkristan@gmail.com',
         ]);
-        
     }
-
 
     protected function tearDown(): void
     {

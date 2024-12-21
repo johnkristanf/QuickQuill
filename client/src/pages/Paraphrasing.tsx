@@ -6,10 +6,11 @@ import { SubmitHandler, useForm } from "react-hook-form";
 
 import { SideBar } from "@/components/SideBar";
 import { Paraphrase } from "@/types/paraphrase";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { paraphraseText } from "@/api/post/paraphrase";
 import { FloatingParaphraseHelperButton, SubmitParaphraseButton } from "@/components/paraphrasing/Buttons";
 import { ModeSelection } from "@/components/paraphrasing/ModeSelection";
+import { useUpdateTextArea } from "@/hooks/useUpdateTextArea";
   
 
 function ParaphrasingPage(){
@@ -18,10 +19,10 @@ function ParaphrasingPage(){
     // ALSO ARRANGE THE DIFFERENT COMPONENTS FORMAT CAUSE IT'S WRECKED
     
     const [activeMode, setActiveMode] = useState<string>("Standard");
-
     const [paraphrasedText, setParaphrasedText] = useState<string>("");
     
-    const { register, handleSubmit, watch } = useForm<Paraphrase>();
+    const { register, handleSubmit, watch, setValue } = useForm<Paraphrase>();
+    const queryClient = useQueryClient();
 
 
     const originalText = watch("original_text");
@@ -30,9 +31,11 @@ function ParaphrasingPage(){
         mutationFn: paraphraseText,
         onSuccess: (data) => {
             console.log("reponse from paraphrase: ", data);
-            if(data) setParaphrasedText(data.paraphrased_text)
+            if(data){
+                setParaphrasedText(data.paraphrased_text)
+                queryClient.invalidateQueries({ queryKey: ['paraphrase_history'] })
+            } 
 
-            //   queryClient.invalidateQueries({ queryKey: ['todos'] })
         },
     })
 
@@ -43,6 +46,7 @@ function ParaphrasingPage(){
     }
 
 
+    useUpdateTextArea(setValue, setParaphrasedText)
     
     return(
         <div className="h-screen w-full bg-gray-100 ">
@@ -73,7 +77,7 @@ function ParaphrasingPage(){
                                     {...register("original_text", { required: true })}
                                 />
 
-                                { !originalText && ( <FloatingParaphraseHelperButton /> ) }
+                                { !originalText && ( <FloatingParaphraseHelperButton setInputText={setValue}/> ) }
 
                             </div>
 

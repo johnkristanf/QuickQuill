@@ -65,6 +65,7 @@ jobs:
     - name: List project files
       run: |
         cd server
+        cd tests
         ls 
 
 

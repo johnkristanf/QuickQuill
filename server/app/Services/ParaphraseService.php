@@ -20,7 +20,7 @@ class ParaphraseService
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $jwtToken
 
-        ])->post('http://localhost:5000/paraphrase', [
+        ])->post(env('PARAPHRASE_REQUEST_URL'), [
             'original_text' => $originalText,
             'paraphrase_mode' => $paraphraseMode
         ]);
@@ -45,9 +45,15 @@ class ParaphraseService
         return $history;
     }
 
+    
+    public function getHistory()
+    {
+        return History::select('id', 'original_text', 'transformed_text', 'created_at')
+                        ->where('user_id', Auth::id())
+                        ->get()
+                        ->toArray();
+    }
 
-    // ADD NEW METHOD HERE FOR STORING PARAPHRASE HISTORY
 
-    // THE HISTORY SCHEMA IS JUST ONE TABLE HISTORY
-    // COLUMNS: type(paraphrase, summarized), original_text, transformed_text, user_id, timestamps
+    
 }

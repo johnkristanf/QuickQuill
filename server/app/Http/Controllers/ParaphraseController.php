@@ -30,4 +30,10 @@ class ParaphraseController extends Controller
             'saved_history' => $isSavedHistory ? true : false
         ], 200);
     }
+
+    public function getParaphrasingHistory()
+    {
+        $history = $this->paraphraseService->getHistory();
+        return response()->json(['history' => $history], 200);
+    }
 }

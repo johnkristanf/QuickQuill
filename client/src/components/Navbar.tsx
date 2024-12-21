@@ -1,13 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import quickquillLogo from "../assets/img/quickquill_logo.png";
-import { faUser } from "@fortawesome/free-regular-svg-icons";
-import { useState } from "react";
-
-import { 
-    ContextMenu, 
-    ContextMenuContent, 
-    ContextMenuItem 
-} from '@/components/ui/context-menu';
+import { faMoon, faUser } from "@fortawesome/free-regular-svg-icons";
 
 import {
     Dialog,
@@ -19,23 +12,34 @@ import {
     DialogFooter
 } from "@/components/ui/dialog"
 
+
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+  
+
 import QuickQuillLogo from '../assets/img/quickquill_logo.png';
 import GoogleLogo from '../assets/img/google.webp';
 import FacebookLogo from '../assets/img/facebook.png';
 
 import { Button } from "./ui/button";
-import { useQuery } from "@tanstack/react-query";
-import { getUserData } from "@/api/get/user";
-import { UserData } from "@/types/user";
-
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { faRightToBracket } from "@fortawesome/free-solid-svg-icons";
+import { signOutUser } from "@/api/post/user";
+import { useNavigate } from 'react-router';
+import { useUpdateUserState } from "@/hooks/useUpdateUserState";
+import { useUserStore } from "@/store/userStore";
 
 export function NavBar() {
-    const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 
-    const { data, error, isLoading } = useQuery({ queryKey: ['user_data'], queryFn: getUserData });
+    const { isLoading, error } = useUpdateUserState() 
+    const user = useUserStore((state) => state.user);
+    
     if(error) console.error('Error in getting user data: ', error.message)
 
-    const user: UserData = data && data.user;
 
     return (
         <div className="fixed top-0 border-b-2 w-full h-[6rem] flex items-center bg-white font-semibold px-6">
@@ -60,19 +64,13 @@ export function NavBar() {
                         ? isLoading 
                             ? <div>Loading...</div> 
                             : <LoginDialog />
-                        : <AuthenticatedUser user={user} />
+                        : <AuthenticatedUser />
                 }
             </div>
             
-            {
-                isMenuOpen && (
-                    <ContextMenu modal={true}>
-                        <ContextMenuContent onClick={() => setIsMenuOpen(false)}>
-                            <ContextMenuItem onClick={() => console.log('Item 1 clicked')}>Item 1</ContextMenuItem>
-                            <ContextMenuItem onClick={() => console.log('Item 2 clicked')}>Item 2</ContextMenuItem>
-                        </ContextMenuContent>
-                    </ContextMenu>)
-            }
+            
+
+                    
 
         </div>
     );
@@ -87,13 +85,13 @@ function LoginDialog(){
 
     return(
         <Dialog>
-            <DialogTrigger asChild>
-                <h1 className="text-lg text-slate-800 hover:cursor-pointer hover:opacity-75">
+            <DialogTrigger>
+                <h3 className="text-lg text-slate-800 hover:cursor-pointer hover:opacity-75">
                     Login/Signup
-                </h1>
+                </h3>
             </DialogTrigger>
             
-            <DialogContent className="w-full p-16 bg-white ">
+            <DialogContent className="w-full p-16 bg-white">
                 <DialogHeader>
 
                     <DialogTitle className="flex items-center justify-center mb-5">
@@ -125,7 +123,7 @@ function LoginDialog(){
                     </Button>
                 </div>
 
-                <DialogFooter className="font-semibold mt-8 text-sm ">
+                <DialogFooter className="font-semibold mt-8 text-sm">
                     <h1>
                         By continuing, you agree to  
                         <span className="mx-1 text-blue-800 hover:cursor-pointer hover:opacity-75 ">Terms of Service</span> 
@@ -139,34 +137,69 @@ function LoginDialog(){
     );
 }
 
-// PUT THE USER ON A PROPER STATE MANAGEMENT
-function AuthenticatedUser({ user }: {
-    user: UserData
-}){
+function AuthenticatedUser(){
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
-    console.log("pic: ", user.avatar);
-    
+    const user = useUserStore((state) => state.user);
+
+
+    const mutation = useMutation({
+        mutationFn: signOutUser,
+        onSuccess: (data) => {
+            if (data === "logout_success"){
+                navigate('/');
+                queryClient.clear();
+            } 
+        },
+    })
+
+    const handleSignOut = () => mutation.mutate();
+
     return (
-        <div className="flex items-center">
 
-            <h1>{ user.name }</h1>
+        <DropdownMenu>
+            <DropdownMenuTrigger className="hover:cursor-pointer " asChild>
+                <div className="flex items-center ">
 
-            <div className="bg-gray-100 p-2 rounded-full hover:cursor-pointer">
-                {
-                    user && user.avatar 
-                    ? ( 
-                        <img 
-                            src={user.avatar} 
-                            alt="User Avatar"
-                            className="w-10 rounded-full"
-                        /> 
-                    ) 
-                    : (
-                        <FontAwesomeIcon icon={faUser} />
-                    )
-                }
-            </div>
-        </div>
+                    <h1>{ user.name }</h1>
+
+                    <div className="bg-gray-100 p-2 rounded-full hover:cursor-pointer">
+                        {
+                            user && user.avatar 
+                            ? ( 
+                                <img 
+                                    src={user.avatar} 
+                                    alt="User Avatar"
+                                    className="w-10 rounded-full"
+                                /> 
+                            ) 
+                            : (
+                                <FontAwesomeIcon icon={faUser} />
+                            )
+                        }
+                    </div>
+                </div>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent className="bg-white">
+                <DropdownMenuItem className="flex items-center hover:cursor-pointer">
+                    <FontAwesomeIcon icon={faMoon}/>
+                    Dark Mode
+                </DropdownMenuItem>
+
+                <DropdownMenuItem 
+                    onClick={handleSignOut}
+                    className="flex items-center hover:cursor-pointer "
+                >
+                    <FontAwesomeIcon icon={faRightToBracket}/>
+                    Sign Out
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+            
+        </DropdownMenu>
+
+        
         
     )
 }

@@ -42,7 +42,7 @@ export function NavBar() {
 
 
     return (
-        <div className="fixed top-0 border-b-2 w-full h-[6rem] flex items-center bg-white font-semibold px-6">
+        <div className="fixed top-0 border-b-2 w-full h-[6rem] flex items-center bg-white font-semibold px-6 z-[10]">
             
             <div className="flex items-center flex-1">
                 <img 
@@ -55,7 +55,7 @@ export function NavBar() {
             </div>
 
             <h1 className="text-blue-800 text-xl flex-1 text-center">
-                Paraphrasing Tool
+                Document Editor
             </h1>
 
             <div className="flex items-center justify-end flex-1 font-semibold">

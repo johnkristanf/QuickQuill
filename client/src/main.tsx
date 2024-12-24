@@ -9,6 +9,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
+import TextEditorPage from './pages/TextEditor'
 
 const queryClient = new QueryClient()
 
@@ -21,7 +22,7 @@ createRoot(document.getElementById('root')!).render(
 
           <Route 
             path="/" 
-            element={<Navigate to="/paraphrasing-tool" replace />} 
+            element={<Navigate to="/document/editor" replace />} 
           />
 
           <Route 
@@ -30,6 +31,15 @@ createRoot(document.getElementById('root')!).render(
             element={
               <QueryClientProvider client={queryClient}>
                 <ParaphrasingPage />
+              </QueryClientProvider>
+            }
+          />
+
+          <Route 
+            path='/document/editor' 
+            element={
+              <QueryClientProvider client={queryClient}>
+                <TextEditorPage />
               </QueryClientProvider>
             }
           />

@@ -1,0 +1,31 @@
+@media print {
+    body * {
+      visibility: hidden;
+    }
+  
+    .print-editor {
+      visibility: visible;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+    }
+}
+
+
+.page {
+  width: 100%; /* Adjust as needed */
+  height: 800px; /* Define the page height */
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 16px; /* Space between pages */
+  border: 1px solid #ccc; /* Optional for a page border */
+  background-color: white;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.page-content {
+  padding: 16px;
+  overflow: hidden;
+  height: 100%;
+}

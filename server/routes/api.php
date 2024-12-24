@@ -1,13 +1,15 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ParaphraseController;
+use App\Http\Controllers\ChatBotController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user/data', [AuthController::class, 'getUserData']);
-    Route::post('text/paraphrase', [ParaphraseController::class, 'paraphrase']);
-    Route::get('paraphrasing/history', [ParaphraseController::class, 'getParaphrasingHistory']);
+    Route::get('paraphrasing/history', [ChatBotController::class, 'getChatHistory']);
+
+    Route::post('text/paraphrase', [ChatBotController::class, 'paraphrase']);
+    Route::post('message/chatbot', [ChatBotController::class, 'messageChatBot']);
 
 });
 

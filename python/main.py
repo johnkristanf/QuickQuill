@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from type.paraphrase import Paraphrase
 from generative.paraphrase import GenerativeParaphrase
 from generative.warming_model import keep_model_warm
+from generative.chatbot import ChatBotLLAMA
 
 load_dotenv()
 
@@ -35,11 +36,12 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-gen = GenerativeParaphrase()    
+gen = GenerativeParaphrase() 
+chat = ChatBotLLAMA()   
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000"],  
+    allow_origins=["http://localhost:8000", "http://localhost:4000"],  
     allow_credentials=True,
     allow_methods=["*"],  
     allow_headers=["*"],
@@ -52,6 +54,14 @@ app.add_middleware(JWTMiddleware)
 async def paraphrase(data: Paraphrase):
     paraphrased_text = gen.paraphrase(data.original_text.strip(), data.paraphrase_mode)
     return { "paraphrased_text": paraphrased_text }
+
+
+@app.post("/message/chatbot")
+async def paraphrase(data: dict):
+    message = data.get('message')
+
+    response = chat.message_api_chatBot(message)
+    return { "response": response }
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
-import axiosInstance from "../axios";
+import apiInstance from "../axios";
 
 export const getParaphrasingHistory = async () => {
-    const response = await axiosInstance.get('/api/paraphrasing/history'); 
+    const response = await apiInstance.get('/api/paraphrasing/history'); 
     return response.data; 
 }

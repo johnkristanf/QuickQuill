@@ -1,7 +1,7 @@
-import axiosInstance from "../axios";
+import apiInstance from "../axios";
 
 
 export const getUserData = async () => {
-    const response = await axiosInstance.get('/api/user/data'); 
+    const response = await apiInstance.get('/api/user/data'); 
     return response.data; 
 }

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const axiosInstance = axios.create({
+const apiInstance = axios.create({
   baseURL: 'http://localhost:8000',
   withCredentials: true,
   withXSRFToken: true,
@@ -9,6 +9,6 @@ const axiosInstance = axios.create({
   },
 });
 
-axiosInstance.get('/sanctum/csrf-cookie');
+apiInstance.get('/sanctum/csrf-cookie');
 
-export default axiosInstance;
+export default apiInstance;

@@ -1,6 +1,6 @@
-import axiosInstance from "../axios";
+import apiInstance from "../axios";
 
 export const signOutUser = async () => {
-    const response = await axiosInstance.post('/signout/user', {}); 
+    const response = await apiInstance.post('/signout/user', {}); 
     return response.data; 
 }

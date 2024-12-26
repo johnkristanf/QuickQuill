@@ -20,6 +20,7 @@ function LeftToolBars({ editor, setZoomLevel }: {
 
     const handleZoomChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const zoom = parseInt(e.target.value, 10) / 100; 
+        
         setZoomLevel(zoom);
     };
 
@@ -111,6 +112,7 @@ function LeftToolBars({ editor, setZoomLevel }: {
                 id="dropdown"
                 className="bg-transparent rounded-md w-full focus:outline-none"
                 onChange={handleZoomChange}
+                defaultValue={100}
             >
                 {values.map((value) => (
                 <option key={value} value={value}>

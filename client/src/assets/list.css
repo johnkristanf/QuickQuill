@@ -1,0 +1,20 @@
+.list-decimal {
+    counter-reset: item; /* Reset the counter only once at the <ol> level */
+    list-style: none; /* Remove default list styling */
+    margin-left: 10px; /* Adjust the left margin */
+    padding-left: 10px; /* Add padding for alignment */
+}
+
+.list-decimal > li {
+    counter-increment: item; /* Increment the counter for each <li> */
+    position: relative;
+    padding-left: 20px; /* Indent the list item */
+}
+
+.list-decimal > li::before {
+    content: counter(item) ". "; /* Display the counter with a dot */
+    position: absolute;
+    left: 0; /* Position the number on the left */
+    top: 0;
+    font-weight: bold;
+}

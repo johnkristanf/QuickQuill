@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import '../../assets/list.css';
 
 export const CodeElement = (props: any) => {
 
@@ -39,7 +40,7 @@ export const BulletElement = (props: any) => {
             className="list-disc ml-5"
             style={style}
         >
-            <li>{props.children}</li>
+           {props.children}
 
         </ul>
     ) 
@@ -52,12 +53,12 @@ export const NumberedElement = (props: any) => {
     }
 
     return (
-            <ol 
+            <ol
                 {...props.attributes} 
                 className="list-decimal ml-5"
                 style={style}
             >
-                <li>{props.children}</li>
+                {props.children}
             </ol>
         
     ) 
@@ -87,3 +88,4 @@ export const Leaf = (props: any) => {
         </span>
     ) 
 }
+

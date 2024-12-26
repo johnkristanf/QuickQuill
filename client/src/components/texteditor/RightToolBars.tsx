@@ -1,7 +1,6 @@
 import { isActiveCheckerMethods, notToggleableEditorMethods, toggleEditorMethods } from "@/lib/utils";
 import { faIndent, faListOl, faListUl } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
 import { Editor } from "slate";
 
 import BarLeft from '../../assets/img/bar_left.png';
@@ -16,11 +15,15 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-function RightToolBars({ editor }: { editor: Editor}){
+function RightToolBars({ editor, isBulletListActive, isNumberedListActive, setIsBulletListActive, setIsNumberedListActive }: { 
+    editor: Editor,
+    isBulletListActive: boolean, 
+    isNumberedListActive: boolean, 
+    setIsBulletListActive: React.Dispatch<React.SetStateAction<boolean>>, 
+    setIsNumberedListActive: React.Dispatch<React.SetStateAction<boolean>>
+}){
 
-    const [isBulletListActive, setIsBulletListActive] = useState<boolean>(false);
-    const [isNumberedListActive, setIsNumberedListActive] = useState<boolean>(false);
-
+    
 
     const handleBulletActive = () => {
         toggleEditorMethods.toggleBulletBlock(editor)

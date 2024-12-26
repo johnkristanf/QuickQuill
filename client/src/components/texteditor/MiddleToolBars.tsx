@@ -1,15 +1,23 @@
-import { notToggleableEditorMethods, toggleEditorMethods } from "@/lib/utils";
-import { faBold, faItalic, faMinus,  faPlus, faUnderline } from "@fortawesome/free-solid-svg-icons";
+import { DOCUMENT_FONT_SIZES, DOCUMENT_FONTS, notToggleableEditorMethods, toggleEditorMethods } from "@/lib/utils";
+import { faBold, faChevronDown, faItalic, faMinus,  faPlus, faUnderline } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, useRef, useState } from "react";
 import { Editor } from "slate";
 
-function MiddleToolBars({ editor }: { editor: Editor }) {
-  const colorRef = useRef<HTMLInputElement>(null);
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
-  const fonts = ["Arial", "Courier New", "Georgia", "Times New Roman", "Verdana"];
-  const fontSizes = [8, 9, 10, 11, 12, 13, 14, 18, 24, 30, 36, 48, 60, 72, 96];
-  const [fontSize, setFontSize] = useState(13); 
+import '../../assets/scroll_style.css';
+
+function MiddleToolBars({ editor }: { editor: Editor }) {
+
+  const colorRef = useRef<HTMLInputElement>(null);
+  const [fontSize, setFontSize] = useState(13);
+  const [selectedFontSize, setSelectedFontSize] = useState<string>("Arial")
 
 
     const handleColorPick = () => {
@@ -23,23 +31,23 @@ function MiddleToolBars({ editor }: { editor: Editor }) {
         notToggleableEditorMethods.setTextColorMark(editor, selectedColor)
     } 
 
-    const handleFontChange = (event: ChangeEvent<HTMLSelectElement>) => {
-        const selectFont = event.target.value;
-        notToggleableEditorMethods.setFontFamily(editor, selectFont);
+    const handleFontChange = (selectedFont: string) => {
+        setSelectedFontSize(selectedFont)
+        notToggleableEditorMethods.setFontFamily(editor, selectedFont);
     }
 
     const increaseFontSize = () => {
-        const currentIndex = fontSizes.indexOf(fontSize);
-        if (currentIndex < fontSizes.length - 1) {
-          const newFontSize = fontSizes[currentIndex + 1];
+        const currentIndex = DOCUMENT_FONT_SIZES.indexOf(fontSize);
+        if (currentIndex < DOCUMENT_FONT_SIZES.length - 1) {
+          const newFontSize = DOCUMENT_FONT_SIZES[currentIndex + 1];
           setFontSize(newFontSize);
           notToggleableEditorMethods.adjustFontSize(editor, newFontSize - fontSize); 
         }
     };
       const decreaseFontSize = () => {
-        const currentIndex = fontSizes.indexOf(fontSize);
+        const currentIndex = DOCUMENT_FONT_SIZES.indexOf(fontSize);
         if (currentIndex > 0) {
-          const newFontSize = fontSizes[currentIndex - 1];
+          const newFontSize = DOCUMENT_FONT_SIZES[currentIndex - 1];
           setFontSize(newFontSize);
           notToggleableEditorMethods.adjustFontSize(editor, newFontSize - fontSize); // Pass negative adjustment
         }
@@ -48,19 +56,28 @@ function MiddleToolBars({ editor }: { editor: Editor }) {
   return (
     <div className="flex items-center gap-8 font-semibold">
 
-        <select
-            className="px-2 bg-transparent focus:outline-none"
-            onChange={handleFontChange}
-            defaultValue={notToggleableEditorMethods.getFontFamily(editor) || "default"}
-        >
-            {
-                fonts.map((font) => (
-                    <option key={font} value={font}>
-                        {font}
-                    </option>
-                ))
-            }
-        </select>
+        <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-4 p-2 focus:outline-none hover:cursor-pointer hover:bg-gray-300 ">
+                <h1>{ selectedFontSize }</h1>
+                <FontAwesomeIcon icon={faChevronDown}/>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent className="bg-white max-h-56 flex flex-col gap-2 scroll-container overflow-auto">
+                {
+                    DOCUMENT_FONTS.map((font: string) => (
+                        <DropdownMenuItem 
+                            key={font} 
+                            onClick={() => handleFontChange(font)}
+                            className="hover:cursor-pointer "
+                        >
+                            {font}
+                        </DropdownMenuItem>
+                    ))
+                }
+            </DropdownMenuContent>
+            
+        </DropdownMenu>
+
 
         <div className="flex items-center gap-2">
             <button

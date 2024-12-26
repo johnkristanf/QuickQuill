@@ -11,6 +11,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export const DOCUMENT_FONTS = [
+  "Arial", 
+  "Courier New", 
+  "Georgia", 
+  "Times New Roman", 
+  "Verdana", 
+  "Roboto", 
+  "Lobster", 
+  "Montserrat" 
+];
+
+export const DOCUMENT_FONT_SIZES = [8, 9, 10, 11, 12, 13, 14, 18, 24, 30, 36, 48, 60, 72, 96];
+
 
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -62,8 +75,8 @@ export const isActiveCheckerMethods = {
 
   isBulletBlockActive(editor: Editor) {
     const [match] = Editor.nodes(editor, {
-      // @ts-expect-error - Ignore the unknown `list_type` property because it is dynamically added
-      match: n => n.list_type === 'bullet-list',
+      // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+      match: n => n.type === 'bullet-list',
     })
 
     return !!match
@@ -71,8 +84,8 @@ export const isActiveCheckerMethods = {
 
   isNumberedBlockActive(editor: Editor) {
     const [match] = Editor.nodes(editor, {
-      // @ts-expect-error - Ignore the unknown `list_type` property because it is dynamically added
-      match: n => n.list_type === 'numbered-list', 
+      // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+      match: n => n.type === 'numbered-list', 
     })
 
     return !!match
@@ -96,25 +109,89 @@ export const toggleEditorMethods = {
   toggleBulletBlock(editor: Editor) {
     const isActive = isActiveCheckerMethods.isBulletBlockActive(editor);
 
-    Transforms.setNodes(
-      editor,
-      // @ts-expect-error - Ignore the unknown `list_type` property because it is dynamically added
-      { list_type: isActive ? "" : "bullet-list" },  
-      { match: n => Element.isElement(n) && Editor.isBlock(editor, n) }
-    );
+    
+    if(isActive){
+
+      Transforms.unwrapNodes(editor, {
+        match: n => Element.isElement(n) && n.type === 'bullet-list',
+        split: true
+      })
+
+      Transforms.setNodes(editor, {
+        type: 'paragraph'
+      });
+
+
+    } else {
+      Transforms.wrapNodes(editor, {
+        type: 'bullet-list',
+        children: []
+      });
+
+      Transforms.setNodes(editor, { type: 'list-item' })
+    }
+
+    
   },
   
 
   toggleNumberedBlock(editor: Editor){
     const isActive = isActiveCheckerMethods.isNumberedBlockActive(editor)
 
-    Transforms.setNodes(
-      editor,
-      // @ts-expect-error - Ignore the unknown `list_type` property because it is dynamically added
-      { list_type: isActive ? "" : "numbered-list" },
-      { match: n => Element.isElement(n) && Editor.isBlock(editor, n) }
-    )
+    if(isActive){
+      Transforms.unwrapNodes(editor, {
+      // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+        match: n => Element.isElement(n) && n.type === 'numbered-list',
+        split: true
+      })
+
+      // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+      Transforms.setNodes(editor, { type: 'paragraph' });
+
+    } else {
+
+      Transforms.wrapNodes(editor, {
+      // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+        type: 'numbered-list',
+        children: []
+      });
+
+      // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+      Transforms.setNodes(editor, { type: 'list-item' })
+    }
   },
+
+  insertNewListItem(editor: Editor){
+    const [list] = Editor.nodes(editor, {
+      // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+      match: n => Element.isElement(n) && n.type === 'numbered-list',
+    });
+
+    if(list){
+      Transforms.insertNodes(editor, {
+      // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+        type: 'list-item',
+        children: [{ text: '' }],
+      })
+    }
+  },
+  
+
+  insertNewBulletListItem(editor: Editor){
+    const [list] = Editor.nodes(editor, {
+      // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+      match: n => Element.isElement(n) && n.type === 'bullet-list',
+    });
+
+    if(list){
+      Transforms.insertNodes(editor, {
+      // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+        type: 'list-item',
+        children: [{ text: '' }],
+      })
+    }
+  },
+
 
 
 

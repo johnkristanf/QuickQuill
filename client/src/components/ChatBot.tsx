@@ -29,7 +29,7 @@ function ChatBot(): JSX.Element {
             
             {showTooltip && (
               <div className='absolute bottom-16 right-16 bg-white text-black p-4 rounded shadow w-[28rem] font-semibold'>
-                Greetings! Let's chat! Click me to get assistance from Jake, your AI buddy. I can answer questions, paraphrase text, or summarize information—let's get started!
+                I can answer questions, paraphrase or summarize text. <br /> - I'm Jake, your AI buddy
               </div>
             
             

@@ -35,7 +35,7 @@ export function ChatBox({ setShowChatBox }: { setShowChatBox: React.Dispatch<Rea
   
         {
           conversation.length > 0 && (
-              <div className="h-full flex flex-col-reverse overflow-y-auto p-4 font-semibold text-white gap-2">
+              <div className="h-full flex flex-col-reverse overflow-y-auto p-4 mt-14 font-semibold text-white gap-2">
                 {conversation.slice(0).reverse().map((chat, index) => (
                   <div key={index} className={`flex mb-2 ${chat.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`rounded-lg p-2 max-w-2/3 ${chat.sender === 'user' ? 'bg-blue-600 ml-auto' : 'bg-gray-600 mr-auto'}`}>

@@ -17,7 +17,7 @@ function MiddleToolBars({ editor }: { editor: Editor }) {
 
   const colorRef = useRef<HTMLInputElement>(null);
   const [fontSize, setFontSize] = useState(13);
-  const [selectedFontSize, setSelectedFontSize] = useState<string>("Arial")
+  const [selectedFontStyle, setSelectedFontStyle] = useState<string>("Arial")
 
 
     const handleColorPick = () => {
@@ -31,8 +31,8 @@ function MiddleToolBars({ editor }: { editor: Editor }) {
         notToggleableEditorMethods.setTextColorMark(editor, selectedColor)
     } 
 
-    const handleFontChange = (selectedFont: string) => {
-        setSelectedFontSize(selectedFont)
+    const handleFontChange = (selectedFont: string = "Arial") => {
+        setSelectedFontStyle(selectedFont)
         notToggleableEditorMethods.setFontFamily(editor, selectedFont);
     }
 
@@ -54,11 +54,11 @@ function MiddleToolBars({ editor }: { editor: Editor }) {
       };
       
   return (
-    <div className="flex items-center gap-8 font-semibold">
+    <div className="flex items-center gap-12 font-semibold">
 
         <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-4 p-2 focus:outline-none hover:cursor-pointer hover:bg-gray-300 ">
-                <h1>{ selectedFontSize }</h1>
+                <h1>{ selectedFontStyle }</h1>
                 <FontAwesomeIcon icon={faChevronDown}/>
             </DropdownMenuTrigger>
 

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { exportToWord } from "@/helpers/export_word";
+import { exportToPDF } from "@/helpers/export_pdf";
 
 function LeftToolBars({ editor, setZoomLevel }: { 
     editor: HistoryEditor,
@@ -20,14 +21,22 @@ function LeftToolBars({ editor, setZoomLevel }: {
 
     const handleZoomChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const zoom = parseInt(e.target.value, 10) / 100; 
-        
         setZoomLevel(zoom);
     };
-
+    
     const handlePrint = () => {
-        const printableContent = document.getElementById('print-editor');
-        if (printableContent) {
-            const printWindow = window.open('', '_blank', 'width=1200,height=1000');
+        const editorContainer = document.getElementsByClassName('editor-container')[0]; // Get the editor container
+        if (editorContainer) {
+            // Get all page elements
+            const pages = editorContainer.getElementsByClassName('page');
+            
+            // Concatenate the innerHTML of all pages into one printable document
+            let printableContent = '';
+            for (let i = 0; i < pages.length; i++) {
+                printableContent += pages[i].outerHTML; // Get each page's HTML
+            }
+    
+            const printWindow = window.open('', '_blank', 'width=1200, height=1000');
             if (printWindow) {
                 printWindow.document.open();
                 printWindow.document.write(`
@@ -40,20 +49,23 @@ function LeftToolBars({ editor, setZoomLevel }: {
                                     margin: 0;
                                     padding: 20px;
                                 }
-                                #print-editor {
+                                .page {
+                                    page-break-after: always; /* Ensure each page starts on a new printed page */
                                     width: 100%;
-                                    height: 200vh;
-                                    transform: scale(1.5); 
-                                    transform-origin: top left;
-                                    border: none;
+                                    height: auto;
+                                    padding: 20px;
+                                }
+                                .page:last-child {
+                                    page-break-after: avoid; /* Avoid breaking after the last page */
                                 }
                             </style>
                         </head>
                         <body>
-                            ${printableContent.innerHTML}
+                            ${printableContent}
                         </body>
                     </html>
                 `);
+
                 printWindow.document.close();
                 printWindow.print();
     
@@ -68,7 +80,7 @@ function LeftToolBars({ editor, setZoomLevel }: {
 
 
     return (
-        <div className="flex items-center gap-4 font-semibold">
+        <div className="flex items-center gap-5 font-semibold">
 
             <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-2 p-2 focus:outline-none hover:cursor-pointer hover:bg-gray-300 ">
@@ -77,11 +89,15 @@ function LeftToolBars({ editor, setZoomLevel }: {
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent className="bg-white">
-                    <DropdownMenuItem onClick={exportToWord} className="flex items-center hover:cursor-pointer">
+                    <DropdownMenuItem 
+                        onClick={exportToWord} 
+                        className="flex items-center hover:cursor-pointer"
+                    >
                         Microsoft Word (.docx)
                     </DropdownMenuItem>
 
                     <DropdownMenuItem 
+                        onClick={exportToPDF}
                         className="flex items-center hover:cursor-pointer "
                     >
                         PDF Document (.pdf)

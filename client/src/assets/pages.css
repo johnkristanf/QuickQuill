@@ -1,0 +1,19 @@
+.page {
+    width: 793px;  /* A4 width in pixels at 96 DPI */
+    height: 1122px; /* A4 height in pixels at 96 DPI */
+    margin: 20px auto; /* Center the page */
+    padding: 20px; /* Add padding for text */
+    border: 1px solid #ccc; /* Optional: add a border for visual separation */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: page shadow */
+    overflow: hidden; /* Prevent content from flowing outside the page */
+}
+
+
+
+.editor-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px; 
+    margin-top: 12rem;
+}

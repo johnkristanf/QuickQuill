@@ -5,8 +5,9 @@ export function SampleBotQuestions({setMessage}: {
 }){
   
     const sampleQuestions = [
-      {question: "Can you summarize this paragraph: <Your paragraph>"},
-      {question: "Can you rephrase this sentence: <Your sentence>"},
+      {question: "Summarize this paragraph:"},
+      {question: "Rephrase this sentence: "},
+      {question: "Fix the grammar of this paragraph:"},
     ]
   
     return(

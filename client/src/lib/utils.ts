@@ -2,7 +2,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-import { Editor, Transforms, Text, Element } from "slate";
+import { Editor, Transforms, Text, Element, Node, NodeEntry } from "slate";
 import { Message } from "@/types/chatbot";
 import { useChatbotStore } from "@/store/chatbotState";
 
@@ -113,21 +113,30 @@ export const toggleEditorMethods = {
     if(isActive){
 
       Transforms.unwrapNodes(editor, {
+        // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
         match: n => Element.isElement(n) && n.type === 'bullet-list',
         split: true
       })
 
       Transforms.setNodes(editor, {
+        // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
         type: 'paragraph'
       });
 
 
     } else {
+
+      
+      // THIS FUNCTION ADD A NEW PARENT NODE IN THE SLATE NODE
       Transforms.wrapNodes(editor, {
+        // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
         type: 'bullet-list',
         children: []
       });
 
+      // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+
+      // THIS FUNCTION INSERT A CHILD NODE OF THE NEWLY CREATED PARENT NODE
       Transforms.setNodes(editor, { type: 'list-item' })
     }
 
@@ -150,6 +159,7 @@ export const toggleEditorMethods = {
 
     } else {
 
+      // THIS FUNCTION ADD A NEW PARENT NODE IN THE SLATE NODE
       Transforms.wrapNodes(editor, {
       // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
         type: 'numbered-list',
@@ -157,9 +167,15 @@ export const toggleEditorMethods = {
       });
 
       // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+
+      // THIS FUNCTION INSERT A CHILD NODE OF THE NEWLY CREATED PARENT NODE
       Transforms.setNodes(editor, { type: 'list-item' })
     }
   },
+
+
+  // CHECKING WHERE THE LOCATION OF THE PARENT NODE(numbered-list or bullet-list) IF EXISTS, 
+  // THEN ADD A NEW CHILDREN VALUE INSIDE LIST-ITEM NODE
 
   insertNewListItem(editor: Editor){
     const [list] = Editor.nodes(editor, {
@@ -176,6 +192,9 @@ export const toggleEditorMethods = {
     }
   },
   
+
+  // CHECKING WHERE THE LOCATION OF THE PARENT NODE(numbered-list or bullet-list) IF EXISTS, 
+  // THEN ADD A NEW CHILDREN VALUE INSIDE LIST-ITEM NODE
 
   insertNewBulletListItem(editor: Editor){
     const [list] = Editor.nodes(editor, {
@@ -239,7 +258,7 @@ export const notToggleableEditorMethods = {
     Transforms.setNodes(
       editor, 
       // @ts-expect-error - Ignore the unknown `align` property because it is dynamically added
-      { align: aligment },
+      { align: aligment ?? 'left' },
       { match: n => Element.isElement(n) && Editor.isBlock(editor, n) }
     )
   },
@@ -248,7 +267,7 @@ export const notToggleableEditorMethods = {
   // ----------------------- FONT STYLINGS -------------------------------
 
   setFontFamily(editor: Editor, fontFamily: string){
-    Editor.addMark(editor, 'fontFamily', fontFamily)
+    Editor.addMark(editor, 'fontFamily', fontFamily ?? 'Arial')
   },
 
   getFontFamily(editor: Editor){
@@ -285,4 +304,52 @@ export const notToggleableEditorMethods = {
 
   } 
 
+}
+
+
+
+// ----------------------------------- UNWRAPPING NODE METHODS ----------------------------
+
+export const unwrappingNodeMethods = {
+  unwrapSelectedListType(editor: Editor, parent: Node, setIsActiveListType: React.Dispatch<React.SetStateAction<boolean>>){
+    Transforms.setNodes(editor, {
+      // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+      type: 'paragraph',
+    });
+
+
+    // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+    const parentType = parent.type
+
+    if(parentType === 'bullet-list'){
+      this.unwrapNodes(editor, 'bullet-list')
+      setIsActiveListType(isActiveCheckerMethods.isBulletBlockActive(editor))
+
+    } else if(parentType === 'numbered-list'){
+      this.unwrapNodes(editor, 'numbered-list')
+      setIsActiveListType(isActiveCheckerMethods.isNumberedBlockActive(editor))
+    } 
+
+  },
+
+
+  unwrapNodes(editor: Editor, nodeName: string){
+    Transforms.unwrapNodes(editor, {
+      match: n =>
+          Element.isElement(n) &&
+          // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+          n.type === nodeName,
+      split: true,
+    });
+  },
+
+  listTypeParentNodeCheck(editor: Editor, numberedListNode: string, bulletListNode: string): NodeEntry<Node> {
+    const [parent] = Editor.nodes(editor, {
+      // @ts-expect-error - Ignore the unknown `type` property because it is dynamically added
+      match: n => Element.isElement(n) && (n.type === numberedListNode || n.type === bulletListNode),
+    })
+
+    return parent
+
+  }
 }

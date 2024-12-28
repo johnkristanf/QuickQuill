@@ -10,9 +10,6 @@ from dotenv import load_dotenv
 from middleware.api_token import JWTMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 
-from type.paraphrase import Paraphrase
-from generative.paraphrase import GenerativeParaphrase
-from generative.warming_model import keep_model_warm
 from generative.chatbot import ChatBotLLAMA
 
 load_dotenv()
@@ -21,22 +18,8 @@ load_dotenv()
 # LIFESPAN USAGE: LOADING A MACHINE LEARNING MODEL 
 # BEFORE THE USER CAN MAKE AN API REQUEST 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    scheduler = AsyncIOScheduler()
-    scheduler.add_job(keep_model_warm, "interval", days=1)
-    scheduler.start()
-    print("Scheduler started.")
 
-    try:
-        yield
-    finally:
-        print("Shutting down scheduler.")
-        scheduler.shutdown()
-
-
-app = FastAPI(lifespan=lifespan)
-gen = GenerativeParaphrase() 
+app = FastAPI()
 chat = ChatBotLLAMA()   
 
 app.add_middleware(
@@ -48,12 +31,6 @@ app.add_middleware(
 )
 
 app.add_middleware(JWTMiddleware)
-
-
-@app.post("/paraphrase")
-async def paraphrase(data: Paraphrase):
-    paraphrased_text = gen.paraphrase(data.original_text.strip(), data.paraphrase_mode)
-    return { "paraphrased_text": paraphrased_text }
 
 
 @app.post("/message/chatbot")

@@ -47,7 +47,7 @@ function RightToolBars({ editor, isBulletListActive, isNumberedListActive, setIs
 
 
     return (
-        <div className="flex items-center gap-4 font-semibold">
+        <div className="flex items-center gap-5 font-semibold">
 
             <DropdownMenu>
                 <DropdownMenuTrigger className="hover:cursor-pointer " asChild>

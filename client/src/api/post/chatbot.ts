@@ -12,7 +12,7 @@ export const handleChatbotMessage = async (message: string, setMessage: React.Di
         updateConversationState(prevConversation => [...prevConversation, userMessage]);
 
         try {
-            const res = await apiInstance.post<{ response: string }>('/api/message/chatbot', { message });
+            const res = await apiInstance.post<{ response: string }>('/message/chatbot', { message });
             simulateTypingEffect(res.data.response);
 
         } catch (error: any) {

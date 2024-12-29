@@ -1,4 +1,3 @@
-import { Paraphrase } from "@/types/paraphrase";
 import apiInstance from "../axios";
 
 export const paraphraseText = async (data: Paraphrase) => {

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useDarkModeStore } from '@/store/darkModeState';
 import '../../assets/list.css';
 
 export const CodeElement = (props: any) => {
@@ -66,6 +67,8 @@ export const NumberedElement = (props: any) => {
 
 export const Leaf = (props: any) => {
 
+    const isDarkMode = useDarkModeStore((state) => state.isDarkMode);
+
     const leaf = props.leaf;
 
     const style: React.CSSProperties = {
@@ -74,7 +77,7 @@ export const Leaf = (props: any) => {
       fontWeight: leaf.bold ? 'bold' : 'normal',
       textDecoration: leaf.underline ? 'underline' : 'none',
       fontStyle: leaf.italic ? 'italic' : 'normal',
-      color: leaf.color || 'black',
+      color: leaf.color || isDarkMode ? '#ffff' : '#00000',
     };
     
 

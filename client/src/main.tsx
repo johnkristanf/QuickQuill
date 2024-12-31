@@ -3,8 +3,6 @@ import { createRoot } from 'react-dom/client'
 import './assets/index.css'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 
-import ParaphrasingPage from './pages/Paraphrasing'
-
 import {
   QueryClient,
   QueryClientProvider,
@@ -23,16 +21,6 @@ createRoot(document.getElementById('root')!).render(
           <Route 
             path="/" 
             element={<Navigate to="/document/editor" replace />} 
-          />
-
-          <Route 
-            index 
-            path='/paraphrasing-tool' 
-            element={
-              <QueryClientProvider client={queryClient}>
-                <ParaphrasingPage />
-              </QueryClientProvider>
-            }
           />
 
           <Route 

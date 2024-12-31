@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Document;
 use App\Services\DocumentService;
 use Illuminate\Http\Request;
 
@@ -21,12 +22,16 @@ class DocumentController extends Controller
             'document_content' => 'required|array',
         ]);
 
-        // ADD A CONDITIONAL FUNCTION HERE IF THE DOCUMENT NAME EXIST (SELECT IT IN DB)
-        // CHANGE THE NAME WITH (1) CONDITION THE LEN OF THE SELECTED DATA 
-        // TO PUT WHAT CORRECT PARENTHESIS NUMBER
+        $documentName = $validated['document_name'];
+        $documentContent = $validated['document_content'];
 
-        $this->documentService->saveDocumentMetaDataToDB($validated['document_name']);
-        $this->documentService->saveDocumentToBucket($validated['document_name'], $validated['document_content']);
+        $isDocumentNameExist = $this->documentService->isDocumentNameExist($documentName);
+        
+        if(!$isDocumentNameExist){
+            $this->documentService->saveDocumentMetaDataToDB($documentName);
+        }
+
+        $this->documentService->saveDocumentToBucket($documentName, $documentContent);
 
         return response()->json(['message' => 'Document Saved!'], 201);
     }
@@ -42,5 +47,39 @@ class DocumentController extends Controller
     {
         $documentContent = $this->documentService->getDocumentContentFromBucket($documentName);
         return response()->json(json_decode($documentContent), 200);
+    }
+
+
+    public function renameDocument(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'document_name' => 'required|string',
+            'old_document_name' => 'required|string',
+        ]);
+
+        $documentName = $validated['document_name'];
+        $oldDocumentName = $validated['old_document_name'];
+
+        $renamed = $this->documentService->renameDocument($id, $documentName, $oldDocumentName);
+
+        if($renamed){
+            return response()->json(['message' => 'Document updated successfully.'], 200);
+        }
+
+        return response()->json(['message' => 'Error in renaming document'], 500);
+
+
+    }
+
+
+    public function deleteDocument($id, $documentName)
+    {
+        $deleted = $this->documentService->deleteDocument($id, $documentName);
+
+        if($deleted){
+            return response()->json(['message' => 'Document deleted successfully.'], 200);
+        }
+
+        return response()->json(['message' => 'Error in deleting document'], 500);
     }
 }

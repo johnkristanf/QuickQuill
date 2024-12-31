@@ -1,8 +1,9 @@
+import { Document } from "@/types/document";
 import apiInstance from "../axios";
 
-export const paraphraseText = async (data: Paraphrase) => {
-    console.log("data in paraphrase: ", data)
+export const saveDocument = async (data: Document) => {
 
-    const response = await apiInstance.post('/text/paraphrase', data); 
+    const response = await apiInstance.post('/save/document', data); 
+    
     return response.data; 
 }

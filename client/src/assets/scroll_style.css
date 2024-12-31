@@ -8,7 +8,7 @@
 
 /* For WebKit-based browsers */
 .scroll-container::-webkit-scrollbar {
-    width: 2px; /* Thin scrollbar */
+    width: 4px; /* Thin scrollbar */
 }
 
 /* Hide scrollbar arrows */

@@ -17,10 +17,17 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
 
+
     public function redirectToGoogle()
     {
         return Socialite::driver('google')->redirect();
     }  
+
+    public function redirectToFacebook()
+    {
+        return Socialite::driver('facebook')->redirect();
+    }  
+    
 
     public function handleGoogleCallback()
     {
@@ -28,6 +35,23 @@ class AuthController extends Controller
 
         // ONLY USE THE SANCTUM TOKEN AUTHENTICATION IF THE USER IS IN STATELESS EG..(MOBILE APP)
         $jwtToken = $this->authService->handleSocialLogin($user, 'google');
+        Session::put('jwt_token',  $jwtToken);
+
+        if(!$jwtToken){
+            throw new Exception("Failed to authenticate user", 500);
+            return redirect()->to(env('UNAUTHENTICATED_REDIRECT_URI'));
+        }
+
+        return redirect()->to(env('AUTHENTICATED_REDIRECT_URI'));
+    }
+
+
+    public function handleFacebookCallback()
+    {
+        $user = Socialite::driver('facebook')->user();
+
+        // ONLY USE THE SANCTUM TOKEN AUTHENTICATION IF THE USER IS IN STATELESS EG..(MOBILE APP)
+        $jwtToken = $this->authService->handleSocialLogin($user, 'facebook');
         Session::put('jwt_token',  $jwtToken);
 
         if(!$jwtToken){

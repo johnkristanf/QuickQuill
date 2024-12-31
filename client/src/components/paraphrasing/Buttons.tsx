@@ -1,4 +1,4 @@
-import { Paraphrase } from "@/types/paraphrase";
+import { Paraphrase } from "@/types/document";
 import { faClipboard } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { UseFormSetValue } from "react-hook-form";

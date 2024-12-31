@@ -13,9 +13,11 @@ import RightToolBars from "@/components/texteditor/RightToolBars";
 import "../assets/print.css";
 import "../assets/pages.css";
 import ChatBot from "@/components/ChatBot";
+import { DocumentList, DocumentSavingNameDialog } from "@/components/texteditor/Documents";
+import { useDocumentStore } from "@/store/documentStore";
 
 function TextEditorPage() {
-    // Function to create a new page
+
     const createNewPage = () => ({
         id: Date.now(),
         editor: withReact(withHistory(createEditor())),
@@ -29,6 +31,13 @@ function TextEditorPage() {
 
     const [pages, setPages] = useState([createNewPage()]);
     const [activePageIndex, setActivePageIndex] = useState<number>(0);
+
+    const [zoomLevel, setZoomLevel] = useState<number>(1);
+    const [isBulletListActive, setIsBulletListActive] = useState<boolean>(false);
+    const [isNumberedListActive, setIsNumberedListActive] = useState<boolean>(false);
+    const [isLoadingDocumentContents, setIsLoadingDocumentContent] = useState<boolean>(false);
+
+    const setDocumentDialogOpen = useDocumentStore((state) => state.setDocumentDialogOpenState)
 
     const handleContentChange = (pageIndex: number, value: any) => {
         const updatedPages = [...pages];
@@ -47,13 +56,8 @@ function TextEditorPage() {
         }, 0); 
     };
 
-    const [zoomLevel, setZoomLevel] = useState<number>(1);
-    const [isBulletListActive, setIsBulletListActive] = useState<boolean>(false);
-    const [isNumberedListActive, setIsNumberedListActive] = useState<boolean>(false);
-
+    
     const renderElement = useCallback((props: any) => {
-        console.log("Type: ", props.element.type);
-
         switch (props.element.type) {
             case "bullet-list":
                 return <BulletElement {...props} />;
@@ -70,14 +74,14 @@ function TextEditorPage() {
         return <Leaf {...props} />;
     }, []);
 
-    console.log("activePageIndex: ", activePageIndex);
+    console.log("pages: ", pages);
     
 
     return (
-        <div className="w-full flex flex-col items-center gap-3 h-[120vh] pb-5">
+        <div className="w-full flex flex-col items-center gap-3 h-[120vh] pb-5 dark:text-white dark:bg-black">
             <NavBar />
 
-            <div className="fixed top-0 w-full h-[13%] flex justify-between items-center rounded-xl bg-slate-100 mt-[6rem] p-5 z-[5]">
+            <div className="fixed top-0 w-full h-[13%] flex justify-between items-center bg-slate-100 mt-[6rem] p-5 z-[5] dark:text-white dark:bg-black">
                 <LeftToolBars editor={pages[activePageIndex].editor}  setZoomLevel={setZoomLevel} />
                 <MiddleToolBars editor={pages[activePageIndex].editor}  />
                 <RightToolBars
@@ -89,13 +93,28 @@ function TextEditorPage() {
                 />
             </div>
 
-            <div className="editor-container">
+
+            <DocumentList 
+                pages={pages}
+                activePageIndex={activePageIndex}
+                setPages={setPages}
+                setIsLoadingDocumentContent={setIsLoadingDocumentContent}
+            />
+            
+
+            {
+                /* PURPOSE OF KEY IS THAT WHEN THE KEY VALUE CHANGES LIKE THE PAGE ID 
+                IS BEING UPDATED IN THE DOCUMENT LIST, THE WHOLE DIV COMPONENT RE RENDERS
+                */
+            }
+
+            <div className="editor-container dark:bg-black ">
                 {pages.map((page, pageIndex) => (
                     <div
                         key={page.id}
                         id={`page-${pageIndex}`}
 
-                        className="page"
+                        className="page dark:bg-black"
                         data-slate-content={JSON.stringify(page.content)}
 
                         style={{
@@ -108,9 +127,19 @@ function TextEditorPage() {
                             editor={page.editor} 
                             initialValue={page.content}
                             onChange={(value) => handleContentChange(pageIndex, value)}
+                            
                         >
+                            {
+                                isLoadingDocumentContents && (
+                                    <h1 className="font-semibold text-center mt-5 text-2xl text-gray-700 dark:text-white">
+                                        Loading Document....
+                                    </h1>
+                                )
+                            }
+                            
+
                             <Editable
-                                className="w-full bg-white p-8 rounded-xl focus:outline-none"
+                                className="w-full bg-white p-8 rounded-xl focus:outline-none dark:bg-black dark:text-white "
                                 spellCheck={true}
                                 autoFocus
                                 autoCorrect="on"
@@ -208,6 +237,12 @@ function TextEditorPage() {
                                             break;
                                         }
 
+                                        case "s": {
+                                            event.preventDefault();
+                                            setDocumentDialogOpen("saving")
+                                            break;
+                                        }
+
                                         default:
                                             break;
                                     }
@@ -218,7 +253,12 @@ function TextEditorPage() {
                 ))}
             </div>
 
+            <DocumentSavingNameDialog 
+                pages={pages}
+            />
+
             <ChatBot />
+
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import { useHistoryStore } from "@/store/historyStore"
-import { Paraphrase } from "@/types/paraphrase"
+import { Paraphrase } from "@/types/document"
 import { useEffect } from "react"
 import { UseFormSetValue } from "react-hook-form"
 

@@ -5,7 +5,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 
 
 import { SideBar } from "@/components/SideBar";
-import { Paraphrase } from "@/types/paraphrase";
+import { Paraphrase } from "@/types/document";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { paraphraseText } from "@/api/post/paraphrase";
 import { FloatingParaphraseHelperButton, SubmitParaphraseButton } from "@/components/paraphrasing/Buttons";

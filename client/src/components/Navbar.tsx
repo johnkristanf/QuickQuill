@@ -32,6 +32,7 @@ import { signOutUser } from "@/api/post/user";
 import { useNavigate } from 'react-router';
 import { useUpdateUserState } from "@/hooks/useUpdateUserState";
 import { useUserStore } from "@/store/userStore";
+import { useDarkModeStore } from "@/store/darkModeState";
 
 export function NavBar() {
 
@@ -42,7 +43,7 @@ export function NavBar() {
 
 
     return (
-        <div className="fixed top-0 border-b-2 w-full h-[6rem] flex items-center bg-white font-semibold px-6 z-[10]">
+        <div className="fixed top-0 border-b-2 w-full h-[6rem] flex items-center bg-white font-semibold px-6 z-[10] dark:bg-black">
             
             <div className="flex items-center flex-1">
                 <img 
@@ -51,14 +52,14 @@ export function NavBar() {
                     height={70} 
                     alt="QuickQuill Logo"
                 />
-                <h1 className="text-blue-800 text-xl ml-2">QuickQuill</h1>
+                <h1 className="text-blue-800 text-xl ml-2 dark:text-white">QuickQuill</h1>
             </div>
 
-            <h1 className="text-blue-800 text-xl flex-1 text-center">
+            <h1 className="text-blue-800 text-xl flex-1 text-center dark:text-white">
                 Document Editor
             </h1>
 
-            <div className="flex items-center justify-end flex-1 font-semibold">
+            <div className="flex items-center justify-end flex-1 font-semibold dark:text-white">
                 {
                     !user 
                         ? isLoading 
@@ -81,6 +82,10 @@ function LoginDialog(){
 
     const handleGoogleLogin = async () => {
         window.location.href = 'http://localhost:8000/auth/google';  
+    };
+
+    const handleFacebookLogin = async () => {
+        window.location.href = 'http://localhost:8000/auth/facebook';  
     };
 
     return(
@@ -115,6 +120,7 @@ function LoginDialog(){
                     </Button>
 
                     <Button 
+                        onClick={handleFacebookLogin}
                         className="w-full rounded-full p-5 border-2 border-gray-400"
                     >
                         <img src={FacebookLogo} alt="Google Logo" width={30}/>
@@ -141,6 +147,10 @@ function AuthenticatedUser(){
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
+    const htmlElement = document.documentElement;
+    const darkModeState = useDarkModeStore();
+
+
     const user = useUserStore((state) => state.user);
 
 
@@ -154,12 +164,29 @@ function AuthenticatedUser(){
         },
     })
 
+
+    const ToggleDarkMode = () => {
+
+        if(darkModeState.isDarkMode){
+            htmlElement.classList.remove('dark')
+            localStorage.setItem("theme", "light");
+        } else {
+            htmlElement.classList.add('dark')
+            localStorage.setItem('theme', 'dark')
+        }
+    
+        darkModeState.setIsDarkModeState(!darkModeState.isDarkMode);
+    }
+
+    console.log("dark: ", darkModeState.isDarkMode);
+    
+
     const handleSignOut = () => mutation.mutate();
 
     return (
 
         <DropdownMenu>
-            <DropdownMenuTrigger className="hover:cursor-pointer " asChild>
+            <DropdownMenuTrigger className="hover:cursor-pointer" asChild>
                 <div className="flex items-center ">
 
                     <h1>{ user.name }</h1>
@@ -183,7 +210,7 @@ function AuthenticatedUser(){
             </DropdownMenuTrigger>
 
             <DropdownMenuContent className="bg-white">
-                <DropdownMenuItem className="flex items-center hover:cursor-pointer">
+                <DropdownMenuItem onClick={() => ToggleDarkMode()} className="flex items-center hover:cursor-pointer">
                     <FontAwesomeIcon icon={faMoon}/>
                     Dark Mode
                 </DropdownMenuItem>

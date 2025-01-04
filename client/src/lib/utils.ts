@@ -6,6 +6,9 @@ import { Editor, Transforms, Text, Element, Node, NodeEntry } from "slate";
 import { Message } from "@/types/chatbot";
 import { useChatbotStore } from "@/store/chatbotState";
 
+import { v4 as uuidv4 } from 'uuid';
+
+
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -55,7 +58,7 @@ export const simulateTypingEffect = async (text: string) => {
   
   for (let i = 0; i < text.length; i++) {
     await new Promise(resolve => setTimeout(resolve, typingDelay));
-    botMessage = { sender: 'bot', text: botMessage.text + text[i] };
+    botMessage = { id: uuidv4(), sender: 'bot', text: botMessage.text + text[i] };
     updateConversationState((prevConversation: Message[]) => {
       const newConversation = [...prevConversation];
       newConversation[newConversation.length - 1] = botMessage;

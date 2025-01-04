@@ -6,6 +6,10 @@ import os
 
 class JWTMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
+
+        if request.scope["type"] == "websocket":
+            return await call_next(request)
+
         authorization: str = request.headers.get('Authorization')
         if authorization is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authorization header missing")

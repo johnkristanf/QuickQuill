@@ -69,13 +69,7 @@ export const Leaf = (props: any) => {
 
     const isDarkMode = useDarkModeStore((state) => state.isDarkMode);
 
-    console.log("isDarkMode: ", isDarkMode);
-    
-
     const leaf = props.leaf;
-
-    console.log("leaf.color: ", leaf.color);
-
 
     const style: React.CSSProperties = {
       fontFamily: leaf.fontFamily || undefined,

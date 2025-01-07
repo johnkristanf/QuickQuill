@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import quickquillLogo from "../assets/img/quickquill_logo.png";
-import { faMoon, faUser } from "@fortawesome/free-regular-svg-icons";
+import { faMoon, faSun, faUser } from "@fortawesome/free-regular-svg-icons";
 
 import {
     Dialog,
@@ -147,7 +147,6 @@ function AuthenticatedUser(){
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    const htmlElement = document.documentElement;
     const darkModeState = useDarkModeStore();
 
 
@@ -166,20 +165,13 @@ function AuthenticatedUser(){
 
 
     const ToggleDarkMode = () => {
-
-        if(darkModeState.isDarkMode){
-            htmlElement.classList.remove('dark')
-            localStorage.setItem("theme", "light");
-        } else {
-            htmlElement.classList.add('dark')
-            localStorage.setItem('theme', 'dark')
-        }
+        const darkModeState = useDarkModeStore.getState();  
     
-        darkModeState.setIsDarkModeState(!darkModeState.isDarkMode);
+        
+    
+        darkModeState.updateThemeState();
     }
 
-    console.log("dark: ", darkModeState.isDarkMode);
-    
 
     const handleSignOut = () => mutation.mutate();
 
@@ -211,8 +203,22 @@ function AuthenticatedUser(){
 
             <DropdownMenuContent className="bg-white">
                 <DropdownMenuItem onClick={() => ToggleDarkMode()} className="flex items-center hover:cursor-pointer">
-                    <FontAwesomeIcon icon={faMoon}/>
-                    Dark Mode
+
+                    {
+                        darkModeState.isDarkMode ? (
+                            <h1 className="flex items-center gap-1">
+                                <FontAwesomeIcon icon={faSun}/>
+                                Light Mode
+                            </h1>
+                            
+                        ) : (
+                            <h1 className="flex items-center gap-1">
+                                <FontAwesomeIcon icon={faMoon}/>
+                                Dark Mode
+                            </h1>
+                        )
+                    }
+                   
                 </DropdownMenuItem>
 
                 <DropdownMenuItem 

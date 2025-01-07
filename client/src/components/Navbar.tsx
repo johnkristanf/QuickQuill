@@ -81,11 +81,11 @@ export function NavBar() {
 function LoginDialog(){
 
     const handleGoogleLogin = async () => {
-        window.location.href = 'http://localhost:8000/auth/google';  
+        window.location.href = import.meta.env.VITE_GOOGLE_LOGIN_URI;  
     };
 
     const handleFacebookLogin = async () => {
-        window.location.href = 'http://localhost:8000/auth/facebook';  
+        window.location.href = import.meta.env.VITE_FACEBOOK_LOGIN_URI;  
     };
 
     return(

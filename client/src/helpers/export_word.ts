@@ -71,9 +71,9 @@ const createStyledParagraph = (children: any[]) => {
       bold: child.bold || false,
       italics: child.italic || false,
       underline: child.underline || false,
-      color: child.color || "000000", // Default to black if no color is specified
-      size: child.fontSize ? child.fontSize * 2 : 24, // Word font size is in half-points
-      font: child.fontFamily || "Arial", // Default font
+      color: child.color || "000000",
+      size: (typeof child.fontSize === 'number' && !isNaN(child.fontSize)) ? child.fontSize * 2 : 24, // Word font size is in half-points
+      font: child.fontFamily || "Arial", 
     })
   );
 

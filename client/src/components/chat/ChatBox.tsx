@@ -11,6 +11,13 @@ import { Message } from '@/types/chatbot';
 
 import { v4 as uuidv4 } from 'uuid';
 
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
+
+
 
 export function ChatBox({ setShowChatBox }: { setShowChatBox: React.Dispatch<React.SetStateAction<boolean>> }) {
     const [message, setMessage] = useState<string>('');
@@ -23,7 +30,6 @@ export function ChatBox({ setShowChatBox }: { setShowChatBox: React.Dispatch<Rea
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
     const updateConversationState = useChatbotStore.getState().updateConversationState;
-
 
 
     useEffect(() => {
@@ -55,7 +61,7 @@ export function ChatBox({ setShowChatBox }: { setShowChatBox: React.Dispatch<Rea
 
             const WSResponse = JSON.parse(event.data);
        
-            if(WSResponse.is_end_of_audio){
+            if(WSResponse.END_OF_AUDIO){
               console.log("Audio transmission complete.");
     
               const audioBlob = new Blob(audioChunks, { type: "audio/mpeg" });
@@ -109,6 +115,7 @@ export function ChatBox({ setShowChatBox }: { setShowChatBox: React.Dispatch<Rea
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
 
+
       mediaRecorder.start();
       setRecording(true);
       mediaRecorderRef.current = mediaRecorder;
@@ -131,16 +138,21 @@ export function ChatBox({ setShowChatBox }: { setShowChatBox: React.Dispatch<Rea
         updateConversationState(prevConversation => [...prevConversation, loaderMessage]);
 
         const audioBlob = new Blob(localChunks, { type: "audio/webm" });
+
+        console.log(`WebSocket readyState: ${socketRef.current?.readyState}`);
+
         
         if (socketRef.current?.readyState === WebSocket.OPEN) {
+          console.log("localChunks before sending to ws: ", localChunks);
           socketRef.current?.send(audioBlob);
           console.log("Audio chunk sent to WebSocket.");
+
         } else {
           console.error("WebSocket is not open. Cannot send audio data.");
         }
 
         localChunks.length = 0; 
-        console.log("chunks after sending to ws: ", localChunks);
+        console.log("localChunks after sending to ws: ", localChunks);
         
       };
 
@@ -162,7 +174,6 @@ export function ChatBox({ setShowChatBox }: { setShowChatBox: React.Dispatch<Rea
         await startRecording();
       }
     };
-   
 
 
     return (
@@ -218,8 +229,21 @@ export function ChatBox({ setShowChatBox }: { setShowChatBox: React.Dispatch<Rea
               <button onClick={handleRecord} className='text-xl font-semibold'>
                   {
                     recording 
-                      ? <FontAwesomeIcon icon={faStop} className='text-red-800'/> 
-                      : <FontAwesomeIcon icon={faMicrophone}/>
+                      ? ( <FontAwesomeIcon icon={faStop} className='text-red-800'/> )
+                      : (
+                        <HoverCard>
+                          <HoverCardTrigger>
+                            <FontAwesomeIcon icon={faMicrophone}/>
+                          </HoverCardTrigger>
+
+                          <HoverCardContent className='text-sm text-justify bg-gray-200'>
+                            Click the microphone icon to speak your request, and jake will 
+                            generate responses like essays, paragraphs, or answer your question.
+                          </HoverCardContent>
+
+                        </HoverCard>
+
+                      ) 
                   }
               </button>
               <audio ref={audioRef} controls className='hidden'/>

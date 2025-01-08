@@ -5,7 +5,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:4000'],
+    'allowed_origins' => ['http://localhost:4000', 'https://quick-quill-alpha.vercel.app/'],
 
     'allowed_origins_patterns' => [],
 

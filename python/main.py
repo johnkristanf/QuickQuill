@@ -28,7 +28,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\John Kristan\Documents
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000", "http://localhost:4000"],  
+    allow_origins=["http://localhost:8000", "http://localhost:4000", "https://quick-quill-alpha.vercel.app/"],  
     allow_credentials=True,
     allow_methods=["*"],  
     allow_headers=["*"],

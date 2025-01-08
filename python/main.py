@@ -52,16 +52,12 @@ def convert_webm_to_linear16(audio_data: io.BytesIO) -> bytes:
     """Convert the WebM audio chunk into LINEAR16 PCM format."""
     input_data = audio_data.getvalue()
 
-    print('convert_function_used')
-
     try:
         stdout, stderr = (
             ffmpeg.input('pipe:0')
             .output('pipe:1', ac=1, ar=16000, f='wav', acodec='pcm_s16le')
             .run(input=input_data, capture_stdout=True, capture_stderr=True, quiet=True)
         )
-
-        print("FFmpeg stderr:", stderr.decode())
 
         return stdout
 
@@ -149,60 +145,5 @@ async def audio_websocket(websocket: WebSocket):
         print(f"WebSocket error: {e}")
 
 
-
-    
-# @app.websocket('/audio/ws')
-# async def audio_websocket(websocket: WebSocket):
-#     audio_data = io.BytesIO()
-
-#     await websocket.accept() 
-#     print("Client connected")
-
-#     try:
-#         while True:
-#             # Receive audio chunk from the WebSocket connection
-#             audio_chunk = await websocket.receive_bytes()
-            
-#             if audio_chunk:
-#                 print(f"Received {len(audio_chunk)} bytes")
-#                 audio_data.write(audio_chunk)
-
-#             if audio_data.tell() > 0:
-
-#                 file_name = f"audio/{uuid.uuid4()}.webm"
-
-#                 print(f"Total bytes to send {audio_data.tell()} bytes")
-#                 await asyncio.to_thread(audio_bot.upload_audio_s3, audio_data, file_name)
-
-#                 s3_bucket_name = "quickquill"
-#                 uploaded_file_name = f"s3://{s3_bucket_name}/{file_name}"
-
-
-#                 transcribed_text = await audio_bot.transcribe_audio(uploaded_file_name)
-#                 print("transcribed_text: ", transcribed_text)
-
-#                 if transcribed_text:
-#                     response_text = chat.message_api_chatBot(transcribed_text) 
-
-#                     speech_file_name = audio_bot.convert_response_to_speech(response_text)
-
-#                     file_size = os.path.getsize(speech_file_name)
-#                     print(f"Total bytes to send: {file_size}")
-
-#                     with open(speech_file_name, "rb") as audio_file:
-#                         while chunks := audio_file.read(64 * 1024):
-#                             await websocket.send_bytes(chunks)
-
-#                     await websocket.send_text(json.dumps({
-#                         'is_end_of_audio': True,
-#                         'content': response_text,
-#                     }))
-
-#     except Exception as e:
-#         print(f"Error in WebSocket handling: {e}")
-#         await websocket.close()  
-#     except WebSocketDisconnect:
-#         print("Client disconnected")
-       
 if __name__ == "__main__":
     uvicorn.run(app, port=5000, log_level="info")

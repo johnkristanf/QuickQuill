@@ -1,7 +1,7 @@
-import { DocumentRename } from "@/types/document";
+import { DocumentData } from "@/types/document";
 import apiInstance from "../axios";
 
-export const renameDocument = async (data: DocumentRename) => {
+export const renameDocument = async (data: DocumentData) => {
     const { id, document_name, old_document_name } = data;
 
     console.log("id: ", id);

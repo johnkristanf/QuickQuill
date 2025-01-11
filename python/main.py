@@ -24,7 +24,7 @@ app = FastAPI()
 chat = ChatBotLLAMA()   
 audio_bot = AudioBot()
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\John Kristan\Documents\quickquill_service_account_key.json"
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\John Kristan\Documents\quickquill_service_account_key.json"
 
 app.add_middleware(
     CORSMiddleware,
